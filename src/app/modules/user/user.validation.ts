@@ -46,7 +46,8 @@ export const updateUserZodSchema = z.object({
     .min(6, { message: "Password must be at least 5 digits" })
     .regex(/^\d{5,}$/, {
       message: "Password must be digits only",
-    }),
+    })
+    .optional(),
   role: z
     .enum(Role, {
       error: `Role must be one of: ${Object.values(Role).join(", ")}`,
