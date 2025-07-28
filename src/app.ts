@@ -13,7 +13,9 @@ app.use(express.json());
 app.use("api/v1", router);
 
 app.get("/", (_req: Request, res: Response) => {
-  res.status(httpStatus.OK).json({ message: "PayBondhu server is on: 😎" });
+  res.status(httpStatus.OK).json({
+    message: "PayBondhu server is on: 😎",
+  });
 });
 
 app.use(globalErrorHandler);
