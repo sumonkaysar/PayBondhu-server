@@ -1,0 +1,8 @@
+{
+  "name": "PayBondhu",
+  "version": "1.0.0",
+  "description": "A secure and modular Digital Wallet API built with Express.js and Mongoose.",
+  "main": "index.js",
+  "author": "SK",
+  "license": "MIT"
+}
