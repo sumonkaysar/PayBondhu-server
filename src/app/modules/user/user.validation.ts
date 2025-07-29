@@ -15,10 +15,9 @@ export const createUserZodSchema = z.object({
     }),
   password: z
     .string({ error: "Password is required" })
-    .min(8, { message: "Password must be at least 8 characters long" })
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/, {
-      message:
-        "Password must include at least 1 uppercase, 1 lowercase, and 1 special character",
+    .min(5, { message: "Password must be at least 5 digits" })
+    .regex(/^\d{5,}$/, {
+      message: "Password must be digits only",
     }),
   role: z
     .enum(Role, {
@@ -43,17 +42,11 @@ export const updateUserZodSchema = z.object({
     .optional(),
   password: z
     .string({ error: "Password is required" })
-    .min(6, { message: "Password must be at least 5 digits" })
+    .min(5, { message: "Password must be at least 5 digits" })
     .regex(/^\d{5,}$/, {
       message: "Password must be digits only",
     })
     .optional(),
-  role: z
-    .enum(Role, {
-      error: `Role must be one of: ${Object.values(Role).join(", ")}`,
-    })
-    .optional()
-    .default(Role.USER),
   status: z
     .enum(Status, {
       error: `Status must be one of: ${Object.values(Status).join(", ")}`,

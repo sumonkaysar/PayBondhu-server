@@ -5,9 +5,27 @@ interface IEnvVars {
   NODE_ENV: string;
   PORT: string;
   DB_URL: string;
+  BCRYPTJS_SALT_ROUND: string;
+  JWT_SECRET: string;
+  JWT_EXPIRES_IN: string;
+  JWT_REFRESH_SECRET: string;
+  JWT_REFRESH_EXPIRES_IN: string;
+  ADMIN_PHONE: string;
+  ADMIN_PASS: string;
 }
 
-const envVarsKeys = ["NODE_ENV", "PORT", "DB_URL"];
+const envVarsKeys = [
+  "NODE_ENV",
+  "PORT",
+  "DB_URL",
+  "BCRYPTJS_SALT_ROUND",
+  "JWT_SECRET",
+  "JWT_EXPIRES_IN",
+  "JWT_REFRESH_SECRET",
+  "JWT_REFRESH_EXPIRES_IN",
+  "ADMIN_PHONE",
+  "ADMIN_PASS",
+];
 
 const envVars = {} as IEnvVars;
 const missingEnvs: string[] = [];

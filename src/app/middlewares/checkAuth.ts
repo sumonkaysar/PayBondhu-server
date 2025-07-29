@@ -12,6 +12,12 @@ const checkAuth = (...roles: Role[]) => {
         throw new AppError(httpStatus.UNAUTHORIZED, "You are unauthorized");
       }
 
+      if (
+        isUserExist.role === Role.AGENT &&
+        isUserExist.status === Status.PENDING
+      ) {
+      }
+
       next();
     } catch (error) {
       next(error);
