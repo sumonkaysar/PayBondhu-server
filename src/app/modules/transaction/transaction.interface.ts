@@ -21,8 +21,8 @@ export interface ITransaction {
   receiver: Types.ObjectId;
   type: TransactionType;
   amount: number;
-  fee?: number;
-  commission?: number;
+  fee: number;
+  commission: number;
   through?: string;
   status: TransactionStatus;
 }

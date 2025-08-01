@@ -1,7 +1,13 @@
-import { compare } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
+import { JwtPayload } from "jsonwebtoken";
+import { Document } from "mongoose";
+import envVars from "../../config/env.config";
 import AppError from "../../errorHelpers/AppError";
 import httpStatus from "../../utils/httpStatus";
-import { createUserTokens } from "../../utils/userTokens";
+import {
+  createNewAccessTokenWithRefreshToken,
+  createUserTokens,
+} from "../../utils/userTokens";
 import { IUser, Role, Status } from "../user/user.interface";
 import { User } from "../user/user.model";
 
@@ -43,6 +49,34 @@ const credentialsLogin = async (payload: IUser) => {
   };
 };
 
+const resetPassword = async (
+  decoded: JwtPayload,
+  newPassword: string,
+  oldPassword: string
+) => {
+  const user = (await User.findById(decoded.userId)) as Document & IUser;
+
+  const isOldPasswordMatched = await compare(
+    oldPassword,
+    user.password as string
+  );
+
+  if (!isOldPasswordMatched) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Old password does not match");
+  }
+
+  user.password = await hash(newPassword, Number(envVars.BCRYPTJS_SALT_ROUND));
+
+  await user.save();
+};
+
+const getNewAccessToken = async (refreshToken: string) => {
+  const accessToken = await createNewAccessTokenWithRefreshToken(refreshToken);
+  return { accessToken };
+};
+
 export const AuthServices = {
   credentialsLogin,
+  resetPassword,
+  getNewAccessToken,
 };

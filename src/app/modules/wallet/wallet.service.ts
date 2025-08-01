@@ -1,18 +1,26 @@
 import AppError from "../../errorHelpers/AppError";
+import FilterData from "../../utils/filterData";
 import httpStatus from "../../utils/httpStatus";
 import { User } from "../user/user.model";
 import { IWallet } from "./wallet.interface";
 import { Wallet } from "./wallet.model";
 
-const getAllWallets = async () => {
-  const wallets = await Wallet.find();
-  const total = await Wallet.countDocuments();
+const getAllWallets = async (query: Record<string, string>) => {
+  const { data: FilteredWallet, meta } = await FilterData(Wallet, query);
+
+  let wallets = FilteredWallet;
+
+  if (
+    !query.fields ||
+    (!query.fields?.includes("-user") &&
+      (query.fields?.includes("user") || query.fields?.includes("-")))
+  ) {
+    wallets = FilteredWallet.populate("user", "name phoneNumber role");
+  }
 
   return {
-    data: wallets,
-    meta: {
-      total,
-    },
+    data: await wallets,
+    meta,
   };
 };
 
@@ -30,7 +38,7 @@ const getMyWallet = async (userId: string) => {
   return wallet;
 };
 
-const updateWallet = async (walletId: string, payload: IWallet) => {
+const updateWalletBlockStatus = async (walletId: string, payload: IWallet) => {
   const isWalletExist = await Wallet.findById(walletId);
 
   if (!isWalletExist) {
@@ -48,5 +56,5 @@ const updateWallet = async (walletId: string, payload: IWallet) => {
 export const WalletServices = {
   getAllWallets,
   getMyWallet,
-  updateWallet,
+  updateWalletBlockStatus,
 };

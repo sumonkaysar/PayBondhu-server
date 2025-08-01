@@ -26,12 +26,6 @@ const getTransactionZodSchema = (isAgent = false) =>
     amount: getAmountZodSchema(),
   });
 
-export const sendMoneyZodSchema = getTransactionZodSchema();
-
-export const cashInZodSchema = getTransactionZodSchema();
-
-export const cashOutZodSchema = getTransactionZodSchema(true);
-
 export const addOrWithdrawMoneyZodSchema = z.object({
   through: z.string({
     error: (issue) =>
@@ -41,3 +35,9 @@ export const addOrWithdrawMoneyZodSchema = z.object({
   }),
   amount: getAmountZodSchema(),
 });
+
+export const sendMoneyZodSchema = getTransactionZodSchema();
+
+export const cashInZodSchema = getTransactionZodSchema();
+
+export const cashOutZodSchema = getTransactionZodSchema(true);

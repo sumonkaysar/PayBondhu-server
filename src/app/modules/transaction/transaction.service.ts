@@ -1,6 +1,7 @@
 import { JwtPayload } from "jsonwebtoken";
 import { Document, startSession } from "mongoose";
 import AppError from "../../errorHelpers/AppError";
+import FilterData from "../../utils/filterData";
 import httpStatus from "../../utils/httpStatus";
 import { Role, Status } from "../user/user.interface";
 import { User } from "../user/user.model";
@@ -10,17 +11,43 @@ import { TransactionCommissions, TransactionFees } from "./transaction.const";
 import { TransactionStatus, TransactionType } from "./transaction.interface";
 import { Transaction } from "./transaction.model";
 
-const getAllTransactions = async () => {
-  const transactions = await Transaction.find()
-    .populate("sender", "name phoneNumber role")
-    .populate("receiver", "name phoneNumber role");
-  const totalTransactions = await Transaction.countDocuments();
+const getAllTransactions = async (query: Record<string, string>) => {
+  const { data: FilteredTransaction, meta } = await FilterData(
+    Transaction,
+    query
+  );
+
+  let transactions = FilteredTransaction;
+
+  if (query.fields) {
+    if (
+      !query.fields?.includes("-receiver") &&
+      (query.fields?.includes("receiver") || query.fields?.includes("-"))
+    ) {
+      transactions = FilteredTransaction.populate(
+        "receiver",
+        "name phoneNumber role"
+      );
+    }
+    if (
+      !query.fields?.includes("-sender") &&
+      (query.fields?.includes("sender") || query.fields?.includes("-"))
+    ) {
+      transactions = FilteredTransaction.populate(
+        "sender",
+        "name phoneNumber role"
+      );
+    }
+  } else {
+    transactions = FilteredTransaction.populate(
+      "sender",
+      "name phoneNumber role"
+    ).populate("receiver", "name phoneNumber role");
+  }
 
   return {
-    data: transactions,
-    meta: {
-      total: totalTransactions,
-    },
+    data: await transactions,
+    meta,
   };
 };
 
@@ -78,10 +105,10 @@ const addOrWithdrawMoney = async (
     const transactionPayload = {
       sender: userId,
       receiver: userId,
-      type: TransactionType.ADD_MONEY,
+      type,
       amount: payload.amount,
       fee,
-      commission: TransactionCommissions.ADD_MONEY,
+      commission: TransactionCommissions[type],
       through: payload.through,
       status: TransactionStatus.COMPLETED,
     };
@@ -262,9 +289,80 @@ const makeTransaction = async (
   }
 };
 
+const reverseTransaction = async (transactionId: string) => {
+  const session = await startSession();
+  const isTransactionExist = await Transaction.findById(transactionId);
+
+  if (!isTransactionExist) {
+    throw new AppError(httpStatus.NOT_FOUND, "Transaction not found!");
+  }
+
+  const senderWallet = (await Wallet.findOne({
+    user: isTransactionExist.sender,
+  })) as IWallet & Document;
+
+  const receiverWallet = (await Wallet.findOne({
+    user: isTransactionExist.receiver,
+  })) as IWallet & Document;
+
+  switch (isTransactionExist.type) {
+    case TransactionType.ADD_MONEY:
+      // sender and receiver is same for add money
+      senderWallet.balance -=
+        isTransactionExist.amount - isTransactionExist.fee;
+      break;
+    case TransactionType.WITHDRAW:
+      // sender and receiver is same for withdraw money
+      senderWallet.balance +=
+        isTransactionExist.amount + isTransactionExist.fee;
+      break;
+    case TransactionType.SEND_MONEY:
+    case TransactionType.CASH_OUT:
+      senderWallet.balance +=
+        isTransactionExist.amount + isTransactionExist.fee;
+      receiverWallet.balance -=
+        isTransactionExist.amount + isTransactionExist.commission;
+      break;
+    case TransactionType.CASH_IN:
+      senderWallet.balance +=
+        isTransactionExist.amount - isTransactionExist.commission;
+      receiverWallet.balance -=
+        isTransactionExist.amount - isTransactionExist.fee;
+      break;
+  }
+
+  try {
+    session.startTransaction();
+
+    await senderWallet.save({ session });
+
+    switch (isTransactionExist.type) {
+      case TransactionType.SEND_MONEY:
+      case TransactionType.CASH_IN:
+      case TransactionType.CASH_OUT:
+        await receiverWallet.save({ session });
+        break;
+    }
+
+    const updatedTransaction = await Transaction.findByIdAndUpdate(
+      transactionId,
+      { status: TransactionStatus.REVERSED },
+      { new: true, runValidators: true, session }
+    );
+
+    return updatedTransaction;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+
 export const TransactionServices = {
   getAllTransactions,
   myTransactions,
   addOrWithdrawMoney,
   makeTransaction,
+  reverseTransaction,
 };

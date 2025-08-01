@@ -59,4 +59,10 @@ router.get(
   TransactionControllers.getAllTransactions
 );
 
+router.get(
+  "/:id/reverse",
+  checkAuth(Role.ADMIN),
+  TransactionControllers.reverseTransaction
+);
+
 export const TransactionRoutes = router;

@@ -2,11 +2,11 @@ import { Model } from "mongoose";
 
 const FilterData = async <T>(
   DocumentModel: Model<T>,
-  query: Record<string, string>
-  //   searchableFields?: string[]
+  query: Record<string, string>,
+  searchableFields?: string[]
 ) => {
   const {
-    // searchTerm = "",
+    searchTerm = "",
     sort = "-createdAt",
     fields = "",
     page = "1",
@@ -14,31 +14,27 @@ const FilterData = async <T>(
     ...filter
   } = query;
 
-  //   let searchQuery = {};
+  let searchQuery = {};
 
-  //   if (searchTerm && searchableFields?.length) {
-  //     searchQuery = {
-  //       $or: searchableFields.map((field) => ({
-  //         [field]: { $regex: searchTerm, $options: "i" },
-  //       })),
-  //     };
-  //   }
-  //   const finalQuery = { ...searchQuery, ...filter };
+  if (searchTerm && searchableFields?.length) {
+    searchQuery = {
+      $or: searchableFields.map((field) => ({
+        [field]: { $regex: searchTerm, $options: "i" },
+      })),
+    };
+  }
+  const finalQuery = { ...searchQuery, ...filter };
 
-  const finalQuery = { ...filter };
-
-  const filtered = DocumentModel.find(finalQuery as Record<string, string>)
+  const filtered = DocumentModel.find(finalQuery)
     .sort(sort)
     .select(fields.split(",").join(" "))
     .limit(Number(limit))
     .skip((Number(page) - 1) * Number(limit));
 
-  const total = await DocumentModel.countDocuments(
-    finalQuery as Record<string, string>
-  );
+  const total = await DocumentModel.countDocuments(finalQuery);
 
   return {
-    data: await filtered,
+    data: filtered,
     meta: {
       page: Number(page),
       limit: Number(limit),

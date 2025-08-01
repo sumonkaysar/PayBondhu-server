@@ -5,7 +5,9 @@ import sendResponse from "../../utils/sendResponse";
 import { WalletServices } from "./wallet.service";
 
 const getAllWallets = catchAsync(async (req: Request, res: Response) => {
-  const result = await WalletServices.getAllWallets();
+  const result = await WalletServices.getAllWallets(
+    req.query as Record<string, string>
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -27,20 +29,25 @@ const getMyWallet = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const updateWallet = catchAsync(async (req: Request, res: Response) => {
-  const { id: walletId } = req.params;
-  const result = await WalletServices.updateWallet(walletId, req.body);
+const updateWalletBlockStatus = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id: walletId } = req.params;
+    const result = await WalletServices.updateWalletBlockStatus(
+      walletId,
+      req.body
+    );
 
-  sendResponse(res, {
-    statusCode: httpStatus.CREATED,
-    success: true,
-    message: "Wallet updated successfully",
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: "Wallet block status updated successfully",
+      data: result,
+    });
+  }
+);
 
 export const WalletControllers = {
   getAllWallets,
   getMyWallet,
-  updateWallet,
+  updateWalletBlockStatus,
 };

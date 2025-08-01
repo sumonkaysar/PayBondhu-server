@@ -16,10 +16,10 @@ router.get(
 );
 
 router.patch(
-  "/",
+  "/block-status/:id",
   checkAuth(Role.ADMIN),
   validateRequest(updateWalletStatusZodSchema),
-  WalletControllers.updateWallet
+  WalletControllers.updateWalletBlockStatus
 );
 
 export const WalletRoutes = router;

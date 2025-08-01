@@ -81,7 +81,9 @@ const cashOut = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllTransactions = catchAsync(async (req: Request, res: Response) => {
-  const result = await TransactionServices.getAllTransactions();
+  const result = await TransactionServices.getAllTransactions(
+    req.query as Record<string, string>
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -104,6 +106,17 @@ const myTransactions = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const reverseTransaction = catchAsync(async (req: Request, res: Response) => {
+  const result = await TransactionServices.reverseTransaction(req.params.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Transaction reversed successfully",
+    data: result,
+  });
+});
+
 export const TransactionControllers = {
   addMoney,
   withdrawMoney,
@@ -112,4 +125,5 @@ export const TransactionControllers = {
   cashOut,
   getAllTransactions,
   myTransactions,
+  reverseTransaction,
 };

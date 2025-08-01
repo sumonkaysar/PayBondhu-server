@@ -3,8 +3,10 @@ import { JwtPayload } from "jsonwebtoken";
 import { startSession } from "mongoose";
 import envVars from "../../config/env.config";
 import AppError from "../../errorHelpers/AppError";
+import FilterData from "../../utils/filterData";
 import httpStatus from "../../utils/httpStatus";
 import { Wallet } from "../wallet/wallet.model";
+import { userSearchableFields } from "./user.const";
 import { IUser, Role, Status } from "./user.interface";
 import { User } from "./user.model";
 
@@ -65,15 +67,36 @@ const createUser = async (payload: IUser) => {
   }
 };
 
-const getAllUsers = async () => {
-  const users = await User.find();
-  const total = await User.countDocuments();
+const getAllUsers = async (query: Record<string, string>) => {
+  const fields =
+    query.fields &&
+    query.fields
+      ?.split(",")
+      .filter((field) => field !== "password")
+      .join(",");
+
+  const { data: FilteredUser, meta } = await FilterData(
+    User,
+    {
+      ...query,
+      fields,
+    },
+    userSearchableFields
+  );
+
+  let users = FilteredUser;
+
+  if (
+    !query.fields ||
+    (!query.fields?.includes("-wallet") &&
+      (query.fields?.includes("wallet") || query.fields?.includes("-")))
+  ) {
+    users = FilteredUser.populate("wallet", "balance isBlocked");
+  }
 
   return {
-    data: users,
-    meta: {
-      total,
-    },
+    data: await users,
+    meta,
   };
 };
 
