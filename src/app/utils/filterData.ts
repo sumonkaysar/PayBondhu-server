@@ -2,7 +2,7 @@ import { Model } from "mongoose";
 
 const FilterData = async <T>(
   DocumentModel: Model<T>,
-  query: Record<string, string>,
+  query: Record<string, string | object>,
   searchableFields?: string[]
 ) => {
   const {
@@ -26,8 +26,8 @@ const FilterData = async <T>(
   const finalQuery = { ...searchQuery, ...filter };
 
   const filtered = DocumentModel.find(finalQuery)
-    .sort(sort)
-    .select(fields.split(",").join(" "))
+    .sort(sort as string)
+    .select((fields as string).split(",").join(" "))
     .limit(Number(limit))
     .skip((Number(page) - 1) * Number(limit));
 

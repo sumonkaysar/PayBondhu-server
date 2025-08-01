@@ -3,9 +3,15 @@ import checkAuth from "../../middlewares/checkAuth";
 import validateRequest from "../../middlewares/validateRequest";
 import { UserControllers } from "./user.controller";
 import { Role } from "./user.interface";
-import { createUserZodSchema, updateUserZodSchema } from "./user.validation";
+import {
+  createUserZodSchema,
+  updateUserNameZodSchema,
+  updateUserStatusZodSchema,
+} from "./user.validation";
 
 const router = Router();
+
+router.get("/all-users", checkAuth(Role.ADMIN), UserControllers.getAllUsers);
 
 router.post(
   "/register",
@@ -14,12 +20,17 @@ router.post(
 );
 
 router.patch(
-  "/:id",
-  checkAuth(),
-  validateRequest(updateUserZodSchema),
+  "/",
+  checkAuth(Role.AGENT, Role.USER),
+  validateRequest(updateUserNameZodSchema),
   UserControllers.updateUser
 );
 
-router.get("/all-users", checkAuth(Role.ADMIN), UserControllers.getAllUsers);
+router.patch(
+  "/:id/status",
+  checkAuth(Role.ADMIN),
+  validateRequest(updateUserStatusZodSchema),
+  UserControllers.updateUser
+);
 
 export const UserRoutes = router;

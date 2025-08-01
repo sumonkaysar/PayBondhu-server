@@ -16,7 +16,7 @@ router.get(
 );
 
 router.patch(
-  "/block-status/:id",
+  "/:id/block-status",
   checkAuth(Role.ADMIN),
   validateRequest(updateWalletStatusZodSchema),
   WalletControllers.updateWalletBlockStatus

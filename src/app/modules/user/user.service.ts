@@ -22,10 +22,7 @@ const createUser = async (payload: IUser) => {
   }
 
   if (payload.role === Role.ADMIN) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "A new Admin can't be registered"
-    );
+    throw new AppError(httpStatus.BAD_REQUEST, "You can't be Admin");
   }
 
   if (payload.role === Role.AGENT) {

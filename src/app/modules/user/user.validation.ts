@@ -50,7 +50,7 @@ export const createUserZodSchema = z.object({
     .default(Status.ACTIVE),
 });
 
-export const updateUserZodSchema = z.object({
+export const updateUserNameZodSchema = z.object({
   name: z
     .string({
       error: (issue) =>
@@ -62,19 +62,9 @@ export const updateUserZodSchema = z.object({
     .min(2, { error: "Name must be at least 2 characters long." })
     .max(50, { error: "Name can't be more than 50 characters." })
     .optional(),
-  password: z
-    .string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Password is required"
-          : "Password must be a string",
-    })
-    .nonempty({ error: "Password can't be blank" })
-    .min(5, { error: "Password must be at least 5 digits" })
-    .regex(/^\d{5,}$/, {
-      error: "Password must be digits only",
-    })
-    .optional(),
+});
+
+export const updateUserStatusZodSchema = z.object({
   status: z
     .enum(Status, {
       error: `Status must be one of: ${Object.values(Status).join(", ")}`,

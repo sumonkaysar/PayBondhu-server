@@ -95,7 +95,10 @@ const getAllTransactions = catchAsync(async (req: Request, res: Response) => {
 });
 
 const myTransactions = catchAsync(async (req: Request, res: Response) => {
-  const result = await TransactionServices.myTransactions(req.user.userId);
+  const result = await TransactionServices.myTransactions(
+    req.user.userId,
+    req.query as Record<string, string>
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

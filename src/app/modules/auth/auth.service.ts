@@ -1,7 +1,6 @@
-import { compare, hash } from "bcryptjs";
+import { compare } from "bcryptjs";
 import { JwtPayload } from "jsonwebtoken";
 import { Document } from "mongoose";
-import envVars from "../../config/env.config";
 import AppError from "../../errorHelpers/AppError";
 import httpStatus from "../../utils/httpStatus";
 import {
@@ -54,7 +53,9 @@ const resetPassword = async (
   newPassword: string,
   oldPassword: string
 ) => {
-  const user = (await User.findById(decoded.userId)) as Document & IUser;
+  const user = (await User.findById(decoded.userId).select(
+    "+password"
+  )) as Document & IUser;
 
   const isOldPasswordMatched = await compare(
     oldPassword,
@@ -64,8 +65,6 @@ const resetPassword = async (
   if (!isOldPasswordMatched) {
     throw new AppError(httpStatus.BAD_REQUEST, "Old password does not match");
   }
-
-  user.password = await hash(newPassword, Number(envVars.BCRYPTJS_SALT_ROUND));
 
   await user.save();
 };

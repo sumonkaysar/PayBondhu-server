@@ -11,18 +11,19 @@ import { TransactionCommissions, TransactionFees } from "./transaction.const";
 import { TransactionStatus, TransactionType } from "./transaction.interface";
 import { Transaction } from "./transaction.model";
 
-const getAllTransactions = async (query: Record<string, string>) => {
+const getAllTransactions = async (query: Record<string, string | object>) => {
   const { data: FilteredTransaction, meta } = await FilterData(
     Transaction,
     query
   );
 
   let transactions = FilteredTransaction;
+  const fields = query.fields as string;
 
-  if (query.fields) {
+  if (fields) {
     if (
-      !query.fields?.includes("-receiver") &&
-      (query.fields?.includes("receiver") || query.fields?.includes("-"))
+      !fields?.includes("-receiver") &&
+      (fields?.includes("receiver") || fields?.includes("-"))
     ) {
       transactions = FilteredTransaction.populate(
         "receiver",
@@ -30,8 +31,8 @@ const getAllTransactions = async (query: Record<string, string>) => {
       );
     }
     if (
-      !query.fields?.includes("-sender") &&
-      (query.fields?.includes("sender") || query.fields?.includes("-"))
+      !fields?.includes("-sender") &&
+      (fields?.includes("sender") || fields?.includes("-"))
     ) {
       transactions = FilteredTransaction.populate(
         "sender",
@@ -51,19 +52,18 @@ const getAllTransactions = async (query: Record<string, string>) => {
   };
 };
 
-const myTransactions = async (userId: string) => {
-  const transactions = await Transaction.find({
+const myTransactions = async (
+  userId: string,
+  query: Record<string, string>
+) => {
+  const { data, meta } = await getAllTransactions({
     $or: [{ sender: userId }, { receiver: userId }],
-  })
-    .populate("sender", "name phoneNumber role")
-    .populate("receiver", "name phoneNumber role");
-  const totalTransactions = await Transaction.countDocuments();
+    ...query,
+  });
 
   return {
-    data: transactions,
-    meta: {
-      total: totalTransactions,
-    },
+    data,
+    meta,
   };
 };
 
@@ -148,23 +148,6 @@ const makeTransaction = async (
 ) => {
   const session = await startSession();
 
-  if (
-    (type === TransactionType.SEND_MONEY ||
-      type === TransactionType.CASH_OUT) &&
-    decoded.role === Role.AGENT
-  ) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      `Agent can not do ${
-        type === TransactionType.CASH_OUT ? "Cash Out" : "Send Money"
-      }`
-    );
-  }
-
-  if (type === TransactionType.CASH_IN && decoded.role !== Role.AGENT) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Only Agent can do Cash In");
-  }
-
   const isReceiverExist = await User.findOne({ phoneNumber: payload.receiver });
 
   if (!isReceiverExist) {
@@ -176,6 +159,15 @@ const makeTransaction = async (
     );
   }
 
+  if (isReceiverExist.status !== Status.ACTIVE) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `${isReceiverExist.role === Role.AGENT ? "Agent" : "Receiver"} is ${
+        isReceiverExist.status
+      }`
+    );
+  }
+
   if (
     (type === TransactionType.CASH_IN || type === TransactionType.SEND_MONEY) &&
     isReceiverExist.role === Role.AGENT
@@ -184,16 +176,7 @@ const makeTransaction = async (
       httpStatus.BAD_REQUEST,
       `Performing ${
         type === TransactionType.SEND_MONEY ? "Send Money" : "Cash In"
-      } to Agent not allowed`
-    );
-  }
-
-  if (isReceiverExist.status !== Status.ACTIVE) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      `${isReceiverExist.role === Role.AGENT ? "Agent" : "Receiver"} is ${
-        isReceiverExist.status
-      }`
+      } to Agent wallet not allowed`
     );
   }
 
