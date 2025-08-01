@@ -4,6 +4,7 @@ import validateRequest from "../../middlewares/validateRequest";
 import { Role } from "../user/user.interface";
 import { TransactionControllers } from "./transaction.controller";
 import {
+  addOrWithdrawMoneyZodSchema,
   cashInZodSchema,
   cashOutZodSchema,
   sendMoneyZodSchema,
@@ -14,14 +15,14 @@ const router = Router();
 router.post(
   "/add-money",
   checkAuth(Role.USER, Role.AGENT),
-  validateRequest(sendMoneyZodSchema),
+  validateRequest(addOrWithdrawMoneyZodSchema),
   TransactionControllers.addMoney
 );
 
 router.post(
   "/withdraw",
   checkAuth(Role.USER),
-  validateRequest(sendMoneyZodSchema),
+  validateRequest(addOrWithdrawMoneyZodSchema),
   TransactionControllers.withdrawMoney
 );
 
