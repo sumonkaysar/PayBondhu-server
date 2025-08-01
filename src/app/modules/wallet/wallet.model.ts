@@ -8,6 +8,10 @@ const walletSchema = new Schema<IWallet>(
       ref: "User",
       required: true,
     },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
     balance: {
       type: Number,
       default: 50,

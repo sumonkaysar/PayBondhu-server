@@ -3,10 +3,6 @@ import { AuthControllers } from "./auth.controller";
 
 const router = Router();
 
-router.post(
-  "/login",
-  //   validateRequest(createUserZodSchema),
-  AuthControllers.credentialsLogin
-);
+router.post("/login", AuthControllers.credentialsLogin);
 
 export const AuthRoutes = router;

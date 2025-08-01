@@ -1,4 +1,7 @@
+import { hash } from "bcryptjs";
+import { JwtPayload } from "jsonwebtoken";
 import { startSession } from "mongoose";
+import envVars from "../../config/env.config";
 import AppError from "../../errorHelpers/AppError";
 import httpStatus from "../../utils/httpStatus";
 import { Wallet } from "../wallet/wallet.model";
@@ -26,6 +29,7 @@ const createUser = async (payload: IUser) => {
   if (payload.role === Role.AGENT) {
     payload.status = Status.PENDING;
   }
+
   try {
     session.startTransaction();
 
@@ -73,7 +77,41 @@ const getAllUsers = async () => {
   };
 };
 
+const updateUser = async (
+  userId: string,
+  payload: IUser,
+  decoded: JwtPayload
+) => {
+  const isUserExist = await User.findById(userId);
+
+  if (!isUserExist) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not Found!");
+  }
+
+  if (
+    payload.status &&
+    (decoded.role === Role.AGENT || decoded.role === Role.USER)
+  ) {
+    throw new AppError(httpStatus.BAD_REQUEST, "You are not authorized");
+  }
+
+  if (payload.password) {
+    payload.password = await hash(
+      payload.password as string,
+      Number(envVars.BCRYPTJS_SALT_ROUND)
+    );
+  }
+
+  const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, {
+    new: true,
+    runValidators: true,
+  });
+
+  return newUpdatedUser;
+};
+
 export const UserServices = {
   createUser,
   getAllUsers,
+  updateUser,
 };
