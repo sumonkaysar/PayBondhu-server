@@ -42,7 +42,7 @@ const credentialsLogin = async (payload: IUser) => {
   ) {
     throw new AppError(
       httpStatus.FORBIDDEN,
-      `Your account is ${isUserExist.status}`
+      `Your account is ${isUserExist.status.toLowerCase()}`
     );
   }
 
