@@ -7,7 +7,11 @@ import { updateWalletStatusZodSchema } from "./wallet.validation";
 
 const router = Router();
 
-router.get("/all", checkAuth(Role.ADMIN), WalletControllers.getAllWallets);
+router.get(
+  "/all-wallets",
+  checkAuth(Role.ADMIN),
+  WalletControllers.getAllWallets
+);
 
 router.get(
   "/me",
