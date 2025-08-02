@@ -1,7 +1,6 @@
 import AppError from "../../errorHelpers/AppError";
 import FilterData from "../../utils/filterData";
 import httpStatus from "../../utils/httpStatus";
-import { User } from "../user/user.model";
 import { IWallet } from "./wallet.interface";
 import { Wallet } from "./wallet.model";
 
@@ -45,7 +44,7 @@ const updateWalletBlockStatus = async (walletId: string, payload: IWallet) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Wallet not found");
   }
 
-  const newUpdatedWallet = await User.findByIdAndUpdate(walletId, payload, {
+  const newUpdatedWallet = await Wallet.findByIdAndUpdate(walletId, payload, {
     new: true,
     runValidators: true,
   });

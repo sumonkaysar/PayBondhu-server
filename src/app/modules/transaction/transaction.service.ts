@@ -333,6 +333,7 @@ const reverseTransaction = async (transactionId: string) => {
       { new: true, runValidators: true, session }
     );
 
+    await session.commitTransaction();
     return updatedTransaction;
   } catch (error) {
     await session.abortTransaction();

@@ -38,7 +38,7 @@ const updateWalletBlockStatus = catchAsync(
     );
 
     sendResponse(res, {
-      statusCode: httpStatus.CREATED,
+      statusCode: httpStatus.OK,
       success: true,
       message: "Wallet block status updated successfully",
       data: result,

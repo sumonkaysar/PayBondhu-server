@@ -30,7 +30,7 @@ router.patch(
   "/:id/status",
   checkAuth(Role.ADMIN),
   validateRequest(updateUserStatusZodSchema),
-  UserControllers.updateUser
+  UserControllers.updateUserStatus
 );
 
 export const UserRoutes = router;

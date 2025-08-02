@@ -65,6 +65,7 @@ const resetPassword = async (
   if (!isOldPasswordMatched) {
     throw new AppError(httpStatus.BAD_REQUEST, "Old password does not match");
   }
+  user.password = newPassword;
 
   await user.save();
 };
