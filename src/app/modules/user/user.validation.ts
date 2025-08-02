@@ -32,7 +32,11 @@ export const createUserZodSchema = z.object({
           : "Password must be a string",
     })
     .nonempty({ error: "Password can't be blank" })
-    .min(5, { error: "Password must be at least 5 digits" })
+    .min(8, { message: "Password must be at least 8 characters long" })
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/, {
+      message:
+        "Password must include at least 1 uppercase, 1 lowercase, and 1 special character",
+    })
     .regex(/^\d{5,}$/, {
       error: "Password must be digits only",
     }),

@@ -4,9 +4,41 @@
 
 ---
 
-## 🚀 Base URL
+## 🔗 Base URL
 
 ### Base API: [https://pay-bondhu-server.vercel.app/api/v1](https://pay-bondhu-server.vercel.app/api/v1)
+
+---
+
+## 🔑 Admin / User / Agent
+
+- **Admin:**
+
+  ```
+  phoneNumber: 00000000000
+  password: Admin123@
+  ```
+
+- **User:**
+
+  ```
+  User-1:
+  phoneNumber: 01700000000
+  password: Password123@
+  ```
+
+  ```
+  User-2:
+  phoneNumber: 01900000000
+  password: Password123@
+  ```
+
+- **Agent:**
+
+  ```
+  phoneNumber: 01500000000
+  password: Password123@
+  ```
 
 ---
 
@@ -98,7 +130,7 @@ Headers: Authorization: <access_token>
     {
       "name": "User Name",
       "phoneNumber": "01800000000",
-      "password": "password123"
+      "password": "Password123@"
     }
 
     JSON: Agent creation(Need a role with 'AGENT' value)
@@ -106,7 +138,7 @@ Headers: Authorization: <access_token>
       "name": "Agent Name",
       "role": "AGENT"
       "phoneNumber": "01800000000",
-      "password": "password123"
+      "password": "Password123@"
     }
   ```
 
@@ -123,7 +155,7 @@ Headers: Authorization: <access_token>
   ```
     JSON:
     {
-      "name": "Update name",
+      "name": "Update name"
     }
   ```
 
@@ -136,7 +168,7 @@ Headers: Authorization: <access_token>
   ```
     JSON:
     {
-      "status": "BLOCKED",
+      "status": "BLOCKED"
     }
   ```
 
@@ -161,7 +193,7 @@ Headers: Authorization: <access_token>
     JSON: User Login
     {
       "phoneNumber": "01800000000",
-      "password": "password123"
+      "password": "Password123@"
     }
   ```
 
@@ -178,8 +210,8 @@ Headers: Authorization: <access_token>
   ```
     JSON:
     {
-      "newPassword": "Sk12345@",
-      "oldPassword": "Sk12345@a"
+      "oldPassword": "Password123@",
+      "newPassword": "Newpassword123@"
     }
   ```
 
