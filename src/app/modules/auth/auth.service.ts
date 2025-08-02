@@ -7,7 +7,7 @@ import {
   createNewAccessTokenWithRefreshToken,
   createUserTokens,
 } from "../../utils/userTokens";
-import { IUser, Role, Status } from "../user/user.interface";
+import { IUser, Status } from "../user/user.interface";
 import { User } from "../user/user.model";
 
 const credentialsLogin = async (payload: IUser) => {
@@ -28,13 +28,21 @@ const credentialsLogin = async (payload: IUser) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Wrong credentials");
   }
 
+  if (isUserExist.status === Status.PENDING) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Your account is pending, please wait for admin approval"
+    );
+  }
+
   if (
-    isUserExist.role === Role.AGENT &&
-    isUserExist.status === Status.PENDING
+    isUserExist.status === Status.BLOCKED ||
+    isUserExist.status === Status.DELETED ||
+    isUserExist.status === Status.SUSPENDED
   ) {
     throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Your account is pending, please wait for admin approval"
+      httpStatus.FORBIDDEN,
+      `Your account is ${isUserExist.status}`
     );
   }
 
