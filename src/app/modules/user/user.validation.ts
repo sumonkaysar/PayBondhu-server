@@ -36,9 +36,6 @@ export const createUserZodSchema = z.object({
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/, {
       message:
         "Password must include at least 1 uppercase, 1 lowercase, and 1 special character",
-    })
-    .regex(/^\d{5,}$/, {
-      error: "Password must be digits only",
     }),
   role: z
     .enum(Role, {
