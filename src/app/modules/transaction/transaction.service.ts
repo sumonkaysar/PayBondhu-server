@@ -280,6 +280,13 @@ const reverseTransaction = async (transactionId: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "Transaction not found!");
   }
 
+  if (isTransactionExist.status === TransactionStatus.REVERSED) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Transaction is already reversed!"
+    );
+  }
+
   const senderWallet = (await Wallet.findOne({
     user: isTransactionExist.sender,
   })) as IWallet & Document;
