@@ -4,6 +4,12 @@
 
 ---
 
+## 🚀 Base URL
+
+### Base API: [https://pay-bondhu-server.vercel.app/api/v1](https://pay-bondhu-server.vercel.app/api/v1)
+
+---
+
 ## 🚀 Features
 
 - 👤 User & Agent Registration
