@@ -10,7 +10,7 @@ import { verifyToken } from "../utils/jwt";
 const checkAuth = (...roles: Role[]) => {
   return async (req: Request, _res: Response, next: NextFunction) => {
     try {
-      const accessToken = req.headers.authorization;
+      const accessToken = req.cookies.accessToken || req.headers.authorization;
 
       if (!accessToken) {
         throw new AppError(httpStatus.UNAUTHORIZED, "You are unauthorized");

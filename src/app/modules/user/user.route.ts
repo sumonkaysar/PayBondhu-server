@@ -13,6 +13,8 @@ const router = Router();
 
 router.get("/all-users", checkAuth(Role.ADMIN), UserControllers.getAllUsers);
 
+router.get("/me", checkAuth(), UserControllers.getMe);
+
 router.post(
   "/register",
   validateRequest(createUserZodSchema),

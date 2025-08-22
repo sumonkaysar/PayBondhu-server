@@ -51,9 +51,21 @@ const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserServices.getMe(req.user.userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User retrieved successfully",
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
   getAllUsers,
   updateUser,
   updateUserStatus,
+  getMe,
 };

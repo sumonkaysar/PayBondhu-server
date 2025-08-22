@@ -118,8 +118,14 @@ const updateUser = async (userId: string, payload: IUser) => {
   return newUpdatedUser;
 };
 
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId);
+  return user;
+};
+
 export const UserServices = {
   createUser,
   getAllUsers,
   updateUser,
+  getMe,
 };
